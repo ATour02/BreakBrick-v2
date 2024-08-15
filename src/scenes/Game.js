@@ -4,71 +4,109 @@ export class Game extends Scene {
   constructor() {
     super("Game");
   }
-
+ 
   create() {
-    // crear pala como rectangulo
-    this.paddle = this.add.rectangle(400, 500, 100, 20, 0x6666ff);
+    this.bricks = 0;
+    this.velocityX = 350;
+    this.nivel = 1;
+    // Background
+    this.cameras.main.setBackgroundColor("#FFF8DC")
+     //Pala
+     this.rectangle = this.add.rectangle(400, 700, 140, 30, 0x0000FF);
+     //Pelota
+     this.ball = this.add.circle(350,50,20,0x00FF00);
+    //Fisicas pala
+     this.physics.add.existing(this.rectangle);
+     this.rectangle.body.setImmovable(true);
+     this.rectangle.body.setCollideWorldBounds(true);
+     //fisicas bola
+     this.physics.add.existing(this.ball);
+     this.ball.body.setCollideWorldBounds(true);
+     this.ball.body.setBounce(1);
+     this.ball.body.setVelocity(this.velocityX, 300);
+     
 
-    // crear bola como circulo
-    this.ball = this.add.circle(400, 300, 10, 0xff6666);
-
-    //crear obstaculo
-    this.obstacle = this.add.rectangle(400, 200, 100, 100, 0x66ff66);
-
-    //agregarlos a las fisicas
-    this.physics.add.existing(this.paddle);
-    this.physics.add.existing(this.ball);
-    this.physics.add.existing(this.obstacle);
-
-    //hacer la paleta inamovible
-    this.paddle.body.setImmovable(true);
-
-    //agregar configuraciones de fisicas a la paleta
-    this.paddle.body.setCollideWorldBounds(true);
-
-    //agregar configuracion de fisicas a la pelota
-    this.ball.body.setCollideWorldBounds(true);
-    this.ball.body.setBounce(1, 1);
-    this.ball.body.setVelocity(200, 200);
-
-    //agregar configuracion de fisicas al obstaculo
-    this.obstacle.body.setImmovable(true);
-
-    //agregar cursor
-    this.cursor = this.input.keyboard.createCursorKeys();
-
-    //colision de la pelota con la paleta
-    this.physics.add.collider(this.paddle, this.ball, null, null, this);
-
-    //colision de la pelota con el obstaculo
-    this.ball.body.onWorldBounds = true;
-    this.physics.add.collider(
-      this.obstacle,
+     // Obstaculo
+     /*this.obstacle = this.add.rectangle(300,200,140,100,0x00FFFF),
+     this.physics.add.existing(this.obstacle);
+     this.obstacle.body.setImmovable(true);
+     this.obstacle.body.setBounce(1); */
+     this.obstacle = this.add.group({
+      classType: Phaser.GameObjects.Rectangle,
+      runChildUpdate: true
+     });
+        const filas = 2; // Número de filas
+        const colum = 3; // Número de columnas
+        const obstacleWidth = 200; // Ancho de cada obstáculo
+        const obstacleHeight = 50; // Altura de cada obstáculo
+        const space = 60; // Espacio entre los obstáculos
+        for (let i = 0; i < filas; i++) {
+          for (let j = 0; j < colum; j++) {
+              const posX = 300 + j * (obstacleWidth + space);
+              const posY = 150 + i * (obstacleHeight + space);
+        let obstacle = this.obstacle.create(posX, posY, null);
+      obstacle.setSize(obstacleWidth, obstacleHeight)
+        obstacle.setFillStyle(0x00FFFF);
+        this.physics.add.existing(obstacle);
+        obstacle.body.setImmovable(true);
+       
+      }}
+     //Perder
+     this.final = this.add.rectangle(600,900, 1200, 15, 0xFF0000)
+     this.physics.add.existing(this.final);
+     this.final.body.setCollideWorldBounds(true);
+     //Creacion de teclas de movimiento
+     this.cursor = this.input.keyboard.createCursorKeys();
+    //Colliders 
+     this.physics.add.collider(
+      this.rectangle,
       this.ball,
-      this.handleCollision,
+      null,
       null,
       this
-    );
+    )
+   this.physics.add.collider(
+    this.ball,
+    this.obstacle,
+    this.handleCollision = (ball, obstacle) => {
+      obstacle.destroy();
+      this.bricks += 1
+      console.log("colision" + this.bricks);
 
-    //colision de la pelota con el limite inferior
-    this.physics.world.on("worldbounds", (body, up, down, left, right) => {
-      if (down) {
-        console.log("hit bottom");
-        this.scene.start("GameOver");
-      }
-    });
+    },
+    null,
+    this
+   )
+   this.physics.add.collider(
+    this.ball,
+    this.final,
+    this.resLevel = (ball, final) => {
+      console.log("Perdiste");
+      this.scene.restart();
+    },
+    null,
+    this
+   );
+   //Texto de Seguimiento
+    this.add.text(50, 50, "Nivel Inicial", {
+      font: '16px Arial',
+      fill: '#000000' // Color del texto en blanco
+  });
   }
 
   update() {
-    if (this.cursor.right.isDown) {
-      this.paddle.x += 10;
-    } else if (this.cursor.left.isDown) {
-      this.paddle.x -= 10;
-    }
-  }
-
-  handleCollision = (obstacle, ball) => {
-    console.log("collision");
-    obstacle.destroy();
-  };
+//Movimiento pala
+    /*const speed = 500;
+    this.rectangle.body.setVelocity(0);
+        if (this.cursor.left.isDown) {
+            this.rectangle.body.setVelocityX(-speed);
+        } else if (this.cursor.right.isDown) {
+            this.rectangle.body.setVelocityX(speed);
+        }
+        */
+        this.input.on('pointermove', (pointer) => {
+          this.rectangle.x = pointer.x;
+      });
+} 
 }
+
