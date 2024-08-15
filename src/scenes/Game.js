@@ -4,7 +4,6 @@ export class Game extends Scene {
   constructor() {
     super("Game");
   }
- 
   create() {
     this.bricks = 0;
     this.velocityX = 350;
@@ -92,6 +91,7 @@ export class Game extends Scene {
       font: '16px Arial',
       fill: '#000000' // Color del texto en blanco
   });
+
   }
 
   update() {
@@ -107,6 +107,7 @@ export class Game extends Scene {
         this.input.on('pointermove', (pointer) => {
           this.rectangle.x = pointer.x;
       });
+    
 } 
 }
 
